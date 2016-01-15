@@ -59,7 +59,7 @@ public class BannerView extends FrameLayout implements View.OnClickListener {
         mViews = new ArrayList<View>();
         mImgs = new ArrayList<ImageView>();
         mHandle = new Handler(mContext.getMainLooper());
-        delaytime = 3000;
+        delaytime = 1000;
     }
 
 
@@ -178,6 +178,7 @@ public class BannerView extends FrameLayout implements View.OnClickListener {
                     isAuto =false;
                     break;
                 case ViewPager.SCROLL_STATE_SETTLING://滑动结束
+                    Log.d("yu","2222222");
                     isAuto=true;
                     break;
 

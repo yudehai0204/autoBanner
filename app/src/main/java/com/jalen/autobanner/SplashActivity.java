@@ -36,6 +36,7 @@ public class SplashActivity extends Activity{
             public void onAnimationEnd(Animation animation) {
                 Intent intent = new Intent(SplashActivity.this,MainActivity.class);
                 startActivity(intent);
+                SplashActivity.this.finish();
             }
 
             @Override
