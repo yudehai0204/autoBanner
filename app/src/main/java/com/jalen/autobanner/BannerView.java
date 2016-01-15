@@ -7,6 +7,7 @@ import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -56,10 +57,10 @@ public class BannerView extends FrameLayout implements View.OnClickListener {
     }
 
     private void initViews() {
-        mViews = new ArrayList<View>();
-        mImgs = new ArrayList<ImageView>();
+        mViews = new ArrayList<>();
+        mImgs = new ArrayList<>();
         mHandle = new Handler(mContext.getMainLooper());
-        delaytime = 1000;
+        delaytime = 3000;
     }
 
 
@@ -68,6 +69,21 @@ public class BannerView extends FrameLayout implements View.OnClickListener {
         mImgs.clear();
         mViews.clear();
         initDatas();
+    }
+
+    @Override
+    protected void onWindowVisibilityChanged(int visibility) {
+        super.onWindowVisibilityChanged(visibility);
+        switch (visibility){
+            case View.VISIBLE:
+                Log.d("yu","vis");
+                isAuto = true;
+                break;
+            default:
+                Log.d("yu","default :  "+visibility);
+                isAuto = false;
+                break;
+        }
     }
 
     private void initDatas() {
@@ -97,7 +113,7 @@ public class BannerView extends FrameLayout implements View.OnClickListener {
                 imgforview.setImageResource(mList.get(i).getDrawableforint());
 
             }else{//网络
-                Glide.with(mContext).load(mList.get(i).getDrawableforurl()).diskCacheStrategy(DiskCacheStrategy.ALL).into(imgforview);
+                Glide.with(mContext).load(mList.get(i).getDrawableforurl()).diskCacheStrategy(DiskCacheStrategy.RESULT).into(imgforview);
 //                Glide.with(mContext).load(mList.get(i).getDrawableforurl()).listener(new RequestListener<String, GlideDrawable>() {
 //                    @Override
 //                    public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
@@ -144,6 +160,7 @@ public class BannerView extends FrameLayout implements View.OnClickListener {
     };
 
 
+    private int preposition;
     private ViewPager.OnPageChangeListener onPageChange = new ViewPager.OnPageChangeListener() {
         @Override
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -152,14 +169,22 @@ public class BannerView extends FrameLayout implements View.OnClickListener {
 
         @Override
         public void onPageSelected(int position) {
-            for(int i=0;i<mImgs.size();i++){
-                if(i==position){
-                    mImgs.get(i).setImageResource(R.mipmap.dot_focus);
-                }else{
-                    mImgs.get(i).setImageResource(R.mipmap.dot_blur);
-
-                }
+            currentItem = vp.getCurrentItem();
+//            for(int i=0;i<mImgs.size();i++){
+//                if(i==position){
+//                    mImgs.get(i).setImageResource(R.mipmap.dot_focus);
+//                }else{
+//                    mImgs.get(i).setImageResource(R.mipmap.dot_blur);
+//
+//                }
+//            }
+            if(position==preposition) {
+                mImgs.get(position).setImageResource(R.mipmap.dot_focus);
+            }else{
+                mImgs.get(position).setImageResource(R.mipmap.dot_focus);
+                mImgs.get(preposition).setImageResource(R.mipmap.dot_blur);
             }
+            preposition = position;
         }
 
         @Override
@@ -167,18 +192,13 @@ public class BannerView extends FrameLayout implements View.OnClickListener {
 
             switch (state){
                 case ViewPager.SCROLL_STATE_IDLE://用户什么都没有操作
-                    isAuto=true;
-                    currentItem = vp.getCurrentItem();
-//                    Log.d("yu","IDLE"+currentItem);
-//                    if(vp.getCurrentItem()==mViews.size()){
-//                        vp.setCurrentItem(0,false);
-//                    }
+//                    isAuto=true;
+
                     break;
                 case ViewPager.SCROLL_STATE_DRAGGING://正在滑动
                     isAuto =false;
                     break;
                 case ViewPager.SCROLL_STATE_SETTLING://滑动结束
-                    Log.d("yu","2222222");
                     isAuto=true;
                     break;
 
@@ -226,4 +246,18 @@ public class BannerView extends FrameLayout implements View.OnClickListener {
     }
 
 
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+
+        switch (ev.getAction()){
+            case MotionEvent.ACTION_DOWN:
+                isAuto=false;
+            break;
+            case MotionEvent.ACTION_CANCEL:
+            case MotionEvent.ACTION_UP:
+                isAuto = true;
+                break;
+        }
+        return super.dispatchTouchEvent(ev);
+    }
 }
